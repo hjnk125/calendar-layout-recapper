@@ -40,7 +40,7 @@ export function ConflictModal() {
               <img
                 src={photo.blobUrl}
                 alt=""
-                className="h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
               />
             </button>
           );
