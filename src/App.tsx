@@ -15,7 +15,6 @@ import { useDialog } from "./lib/dialog";
 import { useStore } from "./store";
 import { exportCalendarJpg } from "./lib/export";
 import { usePhotoUpload } from "./lib/usePhotoUpload";
-import { CARD_THEMES } from "./lib/theme";
 
 function App() {
   const year = useStore((s) => s.year);
@@ -88,16 +87,16 @@ function App() {
   };
 
   const onSaveClick = async () => {
-    const node = document.getElementById("calendar-canvas");
-    if (!node) return;
     setIsSaving(true);
     try {
       await exportCalendarJpg({
-        node: node as HTMLElement,
-        ratio,
-        backgroundColor: CARD_THEMES[calendarTheme].paper,
         year,
         month,
+        weekStart,
+        ratio,
+        theme: calendarTheme,
+        entries,
+        uploadedPhotos,
       });
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {

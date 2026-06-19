@@ -28,7 +28,7 @@
 - **Tailwind CSS 3.4** (모바일 우선)
 - **Zustand 5** (상태관리, `src/store.ts`)
 - **exifr** (EXIF 날짜 추출)
-- **html-to-image** (`toJpeg`, quality 0.92로 JPG 추출)
+- **Canvas 2D 직접 합성**으로 JPG 추출 (q0.92) — html-to-image 미사용(iOS 호환·메모리·속도)
 - **date-fns** (월 그리드 계산, 요일, 날짜 포맷)
 - **커스텀 폰트 "Akt"** — 자체 호스팅 **가변폰트**(`public/fonts/akt.woff2` + `.woff`, Latin 서브셋, weight 100–900). 외부 폰트 의존 없음(완전 로컬). 폴백은 시스템 산세리프.
 - 바텀시트/모달은 **UI 라이브러리 안 씀** — 전부 손으로 만든 fixed 오버레이. 정렬·트랜지션은 **공용 `ModalShell`**(EditSheet·ConflictModal·WheelPicker·HowItWorksSheet 공유)로 통일: 모바일 하단 고정(`items-end`)·데스크탑 중앙(`sm:items-center`), 하단일 땐 slide-up / 중앙일 땐 fade, 백드롭 fade. 진입 rAF·종료 200ms 후 언마운트.
@@ -155,7 +155,7 @@ const inEditor  = hasPhotos || manualMode;   // manualMode = "직접 하나씩" 
 
 ### 3-8. 추출 (`export.ts`) — "Save · Share"
 
-- `html-to-image`의 `toJpeg`로 `#calendar-canvas` 캡처. 목표 픽셀(`EXPORT_SIZES`) 대비 `pixelRatio` 계산해 고해상도로.
+- **Canvas 2D에 캘린더를 직접 합성**(`export.ts`의 `renderCalendar`) — 화면 DOM이 아니라 store 데이터(entries·photos·theme·weekStart)로 헤더/요일/그리드/날짜+stroke/풋터/사진(object-cover 크롭)을 `cqw` 단위 그대로 그린다. 목표 픽셀은 `EXPORT_SIZES`(긴 변 4096). **html-to-image 미사용** — iOS Safari의 SVG `<img>` 렌더 버그를 피하고, DOM 복제/2-pass가 없어 빠르며(→ `navigator.share`의 user activation 유지), 사진을 한 장씩 로드→그리고→해제해 메모리 피크가 작다.
 - `data-export-skip="true"` 노드(크롭/등록 마크, 온보딩 CTA)는 **제외**. 배경은 테마 종이색으로 레터박스 채움.
 - 파일명: **`recap-YYYY-MM.jpg`**.
 - **Web Share API 우선**(모바일 → 인스타 등 공유) → 미지원/데스크탑은 `<a download>` 폴백. 공유 취소(AbortError)는 조용히 무시.
@@ -285,7 +285,7 @@ src/
     dialog.ts              인앱 alert/confirm 스토어(useDialog)
     toast.ts               일시 토스트 스토어(useToast)
     useDragPhoto.ts        Pointer Events 드래그 → object-position
-    export.ts              toJpeg + Web Share/다운로드
+    export.ts              Canvas 2D 합성(renderCalendar) + Web Share/다운로드
     date.ts                날짜 포맷(Mon d / EEE)
 public/
   fonts/akt.woff2 / .woff  Akt 가변폰트(Latin 서브셋, 100–900)
