@@ -3,9 +3,9 @@ import type { Ratio } from "../types";
 
 type ExportSize = { width: number; height: number };
 
-// 긴 변을 4096px로 — 모바일 Safari 캔버스 한계(한 변 ~4096px, 면적 ~16.7M px²)
-// 안에서 뽑을 수 있는 가장 큰 사이즈. 이걸 넘으면 빈 이미지가 나올 수 있다.
-// 비율은 그대로 유지(아래 값은 모두 해당 비율에 정확히 맞는 정수).
+// 긴 변 4096px(고해상도). 소스 사진을 업로드 시 ~1280px로 다운스케일(photos.ts)해
+// 두므로, 모바일에서도 이 크기로 메모리 문제 없이 추출된다. 비율은 유지(아래 값은
+// 해당 비율에 정확히 맞는 정수).
 const EXPORT_SIZES: Record<Ratio, ExportSize> = {
   "1:1": { width: 4096, height: 4096 },
   "4:5": { width: 3276, height: 4095 },
@@ -41,9 +41,23 @@ export async function exportCalendarJpg({
   year,
   month,
 }: ExportArgs): Promise<void> {
+  // 모바일(iOS/Android) 판별 — 공유 방식 선택에 쓰인다.
+  const isMobile =
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 0 && /Macintosh/.test(navigator.userAgent));
+
+  // 소스 사진을 업로드 시 다운스케일(photos.ts)해 두므로 모바일에서도 긴 변
+  // 4096 export가 메모리 문제 없이 동작한다.
   const target = EXPORT_SIZES[ratio];
   const offsetW = node.offsetWidth || target.width;
   const pixelRatio = target.width / offsetW;
+
+  // 캡처 전에 모든 사진 디코딩을 보장한다(미디코딩 상태면 빈 칸으로 찍힌다).
+  await Promise.all(
+    Array.from(node.querySelectorAll("img")).map((img) =>
+      img.decode().catch(() => undefined),
+    ),
+  );
 
   const dataUrl = await toJpeg(node, {
     quality: 0.92,
@@ -74,13 +88,8 @@ export async function exportCalendarJpg({
     share?: (data: ShareData) => Promise<void>;
   };
 
-  // 모바일(iOS/Android) → Web Share를 써서 사용자가 인스타그램 / 사진 저장을
-  // 고를 수 있게 한다. 데스크탑 → 그냥 다운로드(macOS의 공유 시트는 이 흐름엔
-  // 어색하고, Windows/Linux는 아예 없는 경우가 많다).
-  const isMobile =
-    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (navigator.maxTouchPoints > 0 && /Macintosh/.test(navigator.userAgent));
-
+  // 모바일 → Web Share(인스타그램/사진 저장 선택). 데스크탑 → 다운로드.
+  // (isMobile은 위에서 이미 판별)
   if (isMobile && nav.canShare?.({ files: [file] }) && nav.share) {
     try {
       await nav.share({ files: [file] });

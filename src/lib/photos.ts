@@ -1,24 +1,52 @@
 import exifr from "exifr";
 import type { UploadedPhoto } from "../types";
 
-async function getNaturalSize(
-  blobUrl: string,
-): Promise<{ naturalWidth: number; naturalHeight: number }> {
+// 칸 하나는 export(긴 변 4096px)에서도 최대 ~600px라, 원본 사진(보통 3000~4000px+)을
+// 그대로 들고 있으면 메모리만 잡아먹고 export 때 OOM으로 사진이 누락된다.
+// 업로드 시 긴 변을 이 값으로 다운스케일해 메모리를 크게 줄인다(칸이 작아 화질
+// 손실은 체감 없음). EXIF는 다운스케일 전 원본 파일에서 먼저 읽는다.
+const MAX_DIM = 1280;
+
+function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => {
-      resolve({
-        naturalWidth: img.naturalWidth,
-        naturalHeight: img.naturalHeight,
-      });
-    };
+    img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("Failed to load image"));
-    img.src = blobUrl;
+    img.src = src;
   });
 }
 
+// 긴 변이 MAX_DIM을 넘으면 캔버스로 축소해 새 blob(JPEG)을 만든다.
+// 반환: 다운스케일했으면 {blobUrl, width, height}, 아니면 null(원본 유지).
+async function downscale(
+  img: HTMLImageElement,
+): Promise<{ blobUrl: string; width: number; height: number } | null> {
+  const w = img.naturalWidth;
+  const h = img.naturalHeight;
+  const long = Math.max(w, h);
+  if (!long || long <= MAX_DIM) return null;
+  const scale = MAX_DIM / long;
+  const dw = Math.round(w * scale);
+  const dh = Math.round(h * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = dw;
+  canvas.height = dh;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(img, 0, 0, dw, dh);
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", 0.85),
+  );
+  // 디코딩에 쓴 캔버스 버퍼를 즉시 0으로 줄여 메모리를 빨리 회수한다
+  // (동시 처리 중 피크 메모리를 낮추는 데 도움).
+  canvas.width = 0;
+  canvas.height = 0;
+  if (!blob) return null;
+  return { blobUrl: URL.createObjectURL(blob), width: dw, height: dh };
+}
+
 export async function loadUploadedPhoto(file: File): Promise<UploadedPhoto> {
-  const blobUrl = URL.createObjectURL(file);
+  let blobUrl = URL.createObjectURL(file);
   const id =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
@@ -45,10 +73,7 @@ export async function loadUploadedPhoto(file: File): Promise<UploadedPhoto> {
       if (typeof c === "string") {
         // EXIF 문자열은 보통 "YYYY:MM:DD HH:MM:SS" 형태다 — Date가 파싱할 수
         // 있도록 날짜 부분의 ":"를 바꿔준다.
-        const normalized = c.replace(
-          /^(\d{4}):(\d{2}):(\d{2})/,
-          "$1-$2-$3",
-        );
+        const normalized = c.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3");
         const d = new Date(normalized);
         if (!Number.isNaN(d.getTime())) {
           exifDate = d;
@@ -71,16 +96,26 @@ export async function loadUploadedPhoto(file: File): Promise<UploadedPhoto> {
   let naturalWidth = 0;
   let naturalHeight = 0;
   try {
-    const size = await getNaturalSize(blobUrl);
-    naturalWidth = size.naturalWidth;
-    naturalHeight = size.naturalHeight;
+    const img = await loadImage(blobUrl);
+    naturalWidth = img.naturalWidth;
+    naturalHeight = img.naturalHeight;
+    // 큰 사진은 다운스케일해 메모리를 절약하고 원본 blob은 해제한다.
+    // (종횡비는 보존되므로 드래그 패닝 계산엔 영향 없다.)
+    const reduced = await downscale(img);
+    if (reduced) {
+      URL.revokeObjectURL(blobUrl);
+      blobUrl = reduced.blobUrl;
+      naturalWidth = reduced.width;
+      naturalHeight = reduced.height;
+    }
+    // 디코딩한 원본 비트맵 해제 힌트(동시 처리 중 피크 메모리 절감).
+    img.src = "";
   } catch {
-    // 0으로 둔다
+    // 이미지를 못 읽음 — 0으로 둔다(드래그는 'none'으로 처리됨).
   }
 
   return {
     id,
-    file,
     blobUrl,
     exifDate,
     naturalWidth,

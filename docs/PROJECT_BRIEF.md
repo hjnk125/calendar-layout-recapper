@@ -226,7 +226,7 @@ const inEditor  = hasPhotos || manualMode;   // manualMode = "직접 하나씩" 
 type Position = { x: number; y: number };               // 0–100 (object-position %)
 type PhotoEntry = { date: string; photoId: string; position: Position };
 type UploadedPhoto = {
-  id: string; file: File; blobUrl: string;
+  id: string; blobUrl: string;   // blobUrl = 업로드 시 ~1280px로 다운스케일된 JPEG
   exifDate?: Date; naturalWidth: number; naturalHeight: number;
 };
 
@@ -280,7 +280,7 @@ src/
   lib/
     calendar.ts            월 그리드 계산 + getCellAspect(EditSheet 프리뷰용)
     theme.ts               INK + CalendarTheme/CARD_THEMES + RATIO_ORDER + 샘플 채움
-    photos.ts              loadUploadedPhoto (EXIF + lastModified 폴백)
+    photos.ts              loadUploadedPhoto (EXIF + lastModified 폴백 + ~1280px 다운스케일)
     usePhotoUpload.ts      벌크/개별 업로드 훅(진행 카운트·다이얼로그·토스트 연동)
     dialog.ts              인앱 alert/confirm 스토어(useDialog)
     toast.ts               일시 토스트 스토어(useToast)
@@ -308,8 +308,10 @@ public/
 
 ## 9. 비율별 추출 픽셀 (`export.ts` EXPORT_SIZES)
 
-긴 변을 **4096px**로 고정 — 모바일 Safari 캔버스 한계(한 변 ~4096px, 면적 ~16.7M px²)
-안에서 뽑을 수 있는 최대치. 비율은 유지(아래 값은 해당 비율에 정확히 맞는 정수).
+긴 변 **4096px**(데스크탑·모바일 공통). 과거 모바일에서 OOM으로 **사진(래스터)만 누락**되던
+문제는 **소스 사진을 업로드 시 ~1280px로 다운스케일**(`photos.ts`, `MAX_DIM`)해 해결했다 —
+칸은 export에서도 ≤~600px라 화질 손실 없이 메모리만 ~10배 절감. 캡처 전 모든 `<img>`를
+`decode()`로 디코딩 보장. 비율은 유지(아래는 정확한 정수값).
 
 | 비율 | 픽셀 | 용도 |
 | --- | --- | --- |

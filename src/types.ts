@@ -22,7 +22,8 @@ export type PhotoEntry = {
 
 export type UploadedPhoto = {
   id: string;
-  file: File;
+  // 업로드 시 다운스케일된(긴 변 ≤ MAX_DIM) JPEG의 blob URL. 원본은 메모리
+  // 절약을 위해 보관하지 않는다(EXIF는 로드 시 원본에서 미리 추출).
   blobUrl: string;
   exifDate?: Date;
   naturalWidth: number;

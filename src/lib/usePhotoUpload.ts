@@ -6,9 +6,14 @@ import { useDialog } from "./dialog";
 import { useToast } from "./toast";
 import type { UploadedPhoto } from "../types";
 
+// 한 번에 디코딩하는 원본 사진 수. 각 사진은 다운스케일 전에 원본을 통째로
+// 디코딩하므로(고화소 사진 = 수십 MB/장), 전부 병렬로 돌리면 모바일이 메모리로
+// 죽는다. 소수만 동시에 처리해 피크 메모리를 억제한다.
+const LOAD_CONCURRENCY = 3;
+
 // 벌크 로드의 settled 결과: 성공적으로 로드된 사진 + 실패한 개수. 파일 하나가
-// 잘못됐다고 배치 전체를 중단(기존 Promise.all 방식)하는 대신, 부분 실패
-// 피드백을 보여줄 수 있도록 호출자에게 제공한다. onProgress로 완료 개수를 통지.
+// 잘못됐다고 배치 전체를 중단하지 않고, 부분 실패 피드백을 호출자에게 제공한다.
+// 동시성을 LOAD_CONCURRENCY로 제한하고 onProgress로 완료 개수를 통지한다.
 async function loadAllSettled(
   files: File[],
   onProgress: (done: number) => void,
@@ -16,21 +21,30 @@ async function loadAllSettled(
   photos: UploadedPhoto[];
   failedCount: number;
 }> {
-  let done = 0;
-  const results = await Promise.allSettled(
-    files.map((f) =>
-      loadUploadedPhoto(f).finally(() => {
-        done += 1;
-        onProgress(done);
-      }),
-    ),
-  );
   const photos: UploadedPhoto[] = [];
   let failedCount = 0;
-  for (const r of results) {
-    if (r.status === "fulfilled") photos.push(r.value);
-    else failedCount += 1;
-  }
+  let done = 0;
+  let next = 0;
+
+  const worker = async () => {
+    while (next < files.length) {
+      const file = files[next++];
+      try {
+        photos.push(await loadUploadedPhoto(file));
+      } catch {
+        failedCount += 1;
+      } finally {
+        done += 1;
+        onProgress(done);
+      }
+    }
+  };
+
+  const workers = Array.from(
+    { length: Math.min(LOAD_CONCURRENCY, files.length) },
+    worker,
+  );
+  await Promise.all(workers);
   return { photos, failedCount };
 }
 
