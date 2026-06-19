@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { formatMonthDay } from "../lib/date";
 import { ModalShell } from "./ModalShell";
@@ -7,9 +8,33 @@ export function ConflictModal() {
   const pendingConflicts = useStore((s) => s.pendingConflicts);
   const resolveConflict = useStore((s) => s.resolveConflict);
 
+  const gridRef = useRef<HTMLDivElement>(null);
+  // 정사각 칸 크기(px). iOS Safari가 aspect-ratio/padding-% 정사각을 첫 페인트에
+  // 제대로 못 잡는 버그가 있어, 칼럼 폭을 직접 재서 칸 높이를 px로 고정한다.
+  const [cell, setCell] = useState(0);
+
+  const date = Object.keys(pendingConflicts)[0];
+
+  useLayoutEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const measure = () => {
+      const cs = getComputedStyle(el);
+      const padX =
+        parseFloat(cs.paddingLeft || "0") + parseFloat(cs.paddingRight || "0");
+      const gap = parseFloat(cs.columnGap || "0");
+      const inner = el.clientWidth - padX;
+      const size = (inner - gap * 2) / 3; // 3열
+      if (size > 0) setCell(size);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [date]);
+
   // 한 번에 한 충돌씩 해소한다 — 사용자가 한 날짜에 대해 고르면, 다음 대기
   // 중인 충돌(있다면)이 그 자리를 차지한다.
-  const date = Object.keys(pendingConflicts)[0];
   if (!date) return null;
   const photoIds = pendingConflicts[date];
 
@@ -26,7 +51,10 @@ export function ConflictModal() {
           {formatMonthDay(date)} — pick one
         </h2>
       </div>
-      <div className="grid max-h-[70dvh] grid-cols-3 gap-2 overflow-y-auto p-3">
+      <div
+        ref={gridRef}
+        className="grid max-h-[70dvh] grid-cols-3 gap-2 overflow-y-auto p-3"
+      >
         {photoIds.map((id) => {
           const photo = uploadedPhotos[id];
           if (!photo) return null;
@@ -35,14 +63,13 @@ export function ConflictModal() {
               key={id}
               type="button"
               onClick={() => resolveConflict(date, id)}
-              className="block w-full overflow-hidden border border-ink active:opacity-80"
+              style={{ height: cell || undefined }}
+              className="relative overflow-hidden border border-ink active:opacity-80"
             >
-              {/* aspect-square를 img(replaced element)에 직접 — 자기 너비로 높이가
-                  계산돼 순환참조·iOS reflow 없이 첫 페인트부터 정사각. */}
               <img
                 src={photo.blobUrl}
                 alt=""
-                className="block aspect-square w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
               />
             </button>
           );
