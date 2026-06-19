@@ -35,14 +35,14 @@ export function ConflictModal() {
               key={id}
               type="button"
               onClick={() => resolveConflict(date, id)}
-              // iOS Safari는 grid item의 aspect-ratio를 무시하는 버그가 있어,
-              // padding-bottom 100% 트릭으로 정사각을 강제한다.
-              className="relative w-full overflow-hidden border border-ink pb-[100%] active:opacity-80"
+              className="block w-full overflow-hidden border border-ink active:opacity-80"
             >
+              {/* aspect-square를 img(replaced element)에 직접 — 자기 너비로 높이가
+                  계산돼 순환참조·iOS reflow 없이 첫 페인트부터 정사각. */}
               <img
                 src={photo.blobUrl}
                 alt=""
-                className="absolute inset-0 h-full w-full object-cover"
+                className="block aspect-square w-full object-cover"
               />
             </button>
           );
