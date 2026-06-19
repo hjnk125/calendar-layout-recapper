@@ -59,7 +59,7 @@ export async function exportCalendarJpg({
     ),
   );
 
-  const dataUrl = await toJpeg(node, {
+  const opts = {
     quality: 0.92,
     pixelRatio,
     backgroundColor,
@@ -71,13 +71,16 @@ export async function exportCalendarJpg({
     skipFonts: false,
     width: offsetW,
     height: node.offsetHeight,
-    // data-export-skip이 붙은 DOM은 제외한다(빈 칸의 `+` 글리프와 인라인
-    // "Add Photos" CTA는 저장 이미지에 나오면 안 된다).
-    filter: (n) => {
-      if (!(n instanceof HTMLElement)) return true;
-      return n.dataset?.exportSkip !== "true";
-    },
-  });
+    // data-export-skip이 붙은 DOM은 제외한다(크롭/등록 마크, 인라인 CTA는
+    // 저장 이미지에 나오면 안 된다).
+    filter: (n: HTMLElement) => n.dataset?.exportSkip !== "true",
+  };
+
+  // iOS Safari는 첫 캡처에서 blob <img>를 SVG에 못 담아 사진이 누락되는 알려진
+  // 이슈가 있다. 모바일에선 한 번 더 렌더해(첫 패스가 이미지/폰트를 워밍업)
+  // 두 번째 결과를 쓴다.
+  let dataUrl = await toJpeg(node, opts);
+  if (isMobile) dataUrl = await toJpeg(node, opts);
 
   const blob = dataUrlToBlob(dataUrl);
   const filename = `recap-${year}-${String(month + 1).padStart(2, "0")}.jpg`;
