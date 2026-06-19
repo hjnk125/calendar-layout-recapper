@@ -215,6 +215,10 @@ function App() {
                 <TextAction onClick={enterManual}>
                   Or add them one by one
                 </TextAction>
+                <p className="mt-1 max-w-[220px] text-center text-[10px] font-medium leading-snug text-ink/55">
+                  Picking lots of photos may take a moment on iOS before they
+                  load.
+                </p>
               </div>
             )}
           </div>
