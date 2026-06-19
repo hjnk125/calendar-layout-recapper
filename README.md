@@ -5,9 +5,7 @@ A free web tool to turn a month of photos into a single calendar frame and expor
 
 > **Last month, in one frame.**
 
-<!-- 배포 후 Live 배지 추가:
 [![Live](https://img.shields.io/badge/Live-calendar--layout--recapper.vercel.app-black?style=for-the-badge&logo=vercel)](https://calendar-layout-recapper.vercel.app/)
--->
 
 ![Recapper](public/og-image.png)
 
