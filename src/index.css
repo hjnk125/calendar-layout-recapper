@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Akt";
+  font-style: normal;
+  /* 가변폰트(Latin 서브셋) — 100~900 전 굵기를 한 파일로. 굵은 weight도
+     faux-bold 없이 진짜 굵기로 렌더된다. */
+  font-weight: 100 900;
+  font-display: swap;
+  src:
+    url("/fonts/akt.woff2") format("woff2"),
+    url("/fonts/akt.woff") format("woff");
+}
+
+/* 한글 전용 — 폰트 스택에서 Akt(Latin 전용) 뒤에 두면 한글만 Pretendard로
+   렌더된다(현재 한글은 How it works 병기 서브라인, weight 500). */
+@font-face {
+  font-family: "Pretendard";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/Pretendard-Medium.subset.woff") format("woff");
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  /* 바탕은 무채색 회색(#eaeaea) — 종이 텍스처는 그 위에 ::before로 얹는다. */
+  background-color: theme("colors.paper");
+  color: theme("colors.ink");
+  font-family: theme("fontFamily.sans");
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 종이 질감 오버레이 — 회색 바탕 위에 0.5 투명도로 깔아 색을 옅게.
+   fixed로 뷰포트에 고정(스크롤해도 질감 고정), z-index -1로 콘텐츠 뒤. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("/paper-texture.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+}
+
+::selection {
+  background: #1a1a1a;
+  color: #eaeaea;
+}

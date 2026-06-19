@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Primary -->
+    <title>Recapper — Monthly Photo Calendar Layout Maker</title>
+    <meta
+      name="description"
+      content="Recap a month of photos on a calendar grid layout — each photo auto-placed by its date — and export your monthly recap as one high-res JPG image. Free, no sign-up, fully in your browser."
+    />
+    <link rel="canonical" href="https://calendar-layout-recapper.vercel.app/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://calendar-layout-recapper.vercel.app/" />
+    <meta property="og:title" content="Recapper — Monthly Photo Calendar Layout Maker" />
+    <meta
+      property="og:description"
+      content="Recap a month of photos on a calendar grid layout — each photo auto-placed by its date — and export your monthly recap as one high-res JPG image. Free, no sign-up, fully in your browser."
+    />
+    <meta property="og:image" content="https://calendar-layout-recapper.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Recapper — Monthly Photo Calendar Layout Maker" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Recapper — Monthly Photo Calendar Layout Maker" />
+    <meta
+      name="twitter:description"
+      content="Recap a month of photos on a calendar grid layout — each photo auto-placed by date — and export as one high-res JPG image. Free, no sign-up."
+    />
+    <meta name="twitter:image" content="https://calendar-layout-recapper.vercel.app/og-image.png" />
+    <meta name="twitter:image:alt" content="Recapper — Monthly Photo Calendar Layout Maker" />
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Recapper",
+        "url": "https://calendar-layout-recapper.vercel.app/",
+        "description": "Recap a month of photos on a calendar grid layout — each photo auto-placed by its date — and export your monthly recap as one high-res JPG image.",
+        "applicationCategory": "PhotographyApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+
+    <!-- 폰트는 자체 호스팅 가변폰트 Akt(src/index.css @font-face) 하나만 쓴다.
+         외부(Google Fonts) 의존 없음 — 완전 로컬. -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!--
+      SEO content — screen-reader accessible, crawlable by search engines.
+      Visually hidden via sr-only pattern (not display:none or visibility:hidden).
+    -->
+    <section
+      aria-label="About Recapper"
+      style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"
+    >
+      <h1>Recapper — Monthly Photo Calendar Layout Maker</h1>
+      <p>
+        Recapper turns a month of photos into a single calendar frame. Dump your photos and each one is
+        auto-placed on the right day by its EXIF date, forming a photo grid layout you can export as one
+        high-resolution JPG image. Free, no sign-up — all processing happens locally in your browser, and
+        your photos are never uploaded to any server.
+      </p>
+      <p lang="ko">
+        Recapper는 지난 한 달의 사진을 캘린더(calendar) 한 장으로 만들어 줍니다. 사진을 여러 장 올리면 EXIF
+        촬영일로 각 사진이 해당 날짜에 자동 배치되어, 한 달이 사진 그리드(grid) 레이아웃(layout)으로 정리되고
+        고해상도 JPG 이미지(image) 한 장으로 추출됩니다. 회원가입 불필요 — 모든 처리는 브라우저 로컬에서
+        이루어지며 사진은 어떤 서버에도 업로드되지 않습니다.
+      </p>
+
+      <h2>How to make a monthly photo recap</h2>
+      <ol>
+        <li>Dump a batch of photos (PNG or JPG) — each is placed on its date automatically.</li>
+        <li>If a day has several photos, pick one in the conflict view.</li>
+        <li>Tap any day to add or edit a photo, and drag to reposition the crop.</li>
+        <li>Choose an aspect ratio, paper theme, and week start.</li>
+        <li>Hit Save · Share to export the whole month as one JPG image.</li>
+      </ol>
+      <ol lang="ko">
+        <li>사진을 여러 장 올립니다 (PNG·JPG) — 촬영일로 자동 배치됩니다.</li>
+        <li>한 날짜에 여러 장이면 충돌 화면에서 한 장 고릅니다.</li>
+        <li>날짜 칸을 탭해 사진을 추가·편집하고, 드래그해 위치를 맞춥니다.</li>
+        <li>비율·종이 테마·주 시작 요일을 고릅니다.</li>
+        <li>Save · Share 를 눌러 한 달을 JPG 이미지 한 장으로 내보냅니다.</li>
+      </ol>
+
+      <h2>Features</h2>
+      <p>
+        Calendar grid layout with EXIF date auto-placement, aspect ratios for Instagram and stories
+        (4:5, 1:1, 9:16, 3:4, 4:3), white or black paper themes, Sunday or Monday week start,
+        drag-to-reposition per photo, bulk re-dump, and high-resolution JPG export (long side 4096 px).
+      </p>
+      <p lang="ko">
+        EXIF 촬영일 자동 배치 기반의 캘린더 그리드 레이아웃, 인스타그램·스토리용 비율(4:5·1:1·9:16·3:4·4:3),
+        흰색·검정 종이 테마, 일요일·월요일 주 시작, 사진별 드래그 위치 조정, 벌크 재업로드, 고해상도 JPG
+        추출(긴 변 4096px)을 지원합니다.
+      </p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <h3>Is Recapper free?</h3>
+      <p>Yes. Recapper is completely free with no account or sign-up required.</p>
+      <p lang="ko">네. Recapper는 계정 생성이나 회원가입 없이 완전 무료로 이용할 수 있습니다.</p>
+
+      <h3>Are my photos uploaded to a server?</h3>
+      <p>No. Everything runs locally in your browser — your photos never leave your device.</p>
+      <p lang="ko">아니요. 모든 처리는 브라우저 로컬에서 이루어지며, 사진은 기기 밖으로 나가지 않습니다.</p>
+
+      <h3>What is a photo calendar recap?</h3>
+      <p>
+        A photo calendar recap is a monthly recap image that lays your photos onto a calendar grid by date,
+        so a whole month becomes one shareable image — the date is the layout.
+      </p>
+      <p lang="ko">
+        포토 캘린더 리캡(photo calendar recap)은 사진을 날짜별로 캘린더 그리드에 올려 한 달을 공유 가능한 이미지
+        한 장으로 만든 월간(monthly) 리캡입니다 — 날짜가 곧 레이아웃이 됩니다.
+      </p>
+
+      <h3>What file formats are supported?</h3>
+      <p>You can upload PNG and JPG photos. The recap is exported as a JPG image.</p>
+      <p lang="ko">PNG·JPG 사진을 올릴 수 있고, 리캡은 JPG 이미지로 내보내집니다.</p>
+
+      <h3 lang="ko">한 달 사진을 캘린더 한 장으로 정리하는 방법은?</h3>
+      <p lang="ko">
+        Recapper(calendar-layout-recapper.vercel.app)에 한 달치 사진을 올리면 EXIF 날짜로 캘린더 그리드에 자동
+        배치되어, 비율·테마를 고른 뒤 월간 리캡을 JPG 이미지 한 장으로 무료로 추출할 수 있습니다.
+      </p>
+    </section>
+  </body>
+</html>
