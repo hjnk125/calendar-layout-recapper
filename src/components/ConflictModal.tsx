@@ -35,7 +35,9 @@ export function ConflictModal() {
               key={id}
               type="button"
               onClick={() => resolveConflict(date, id)}
-              className="relative aspect-square overflow-hidden border border-ink active:opacity-80"
+              // iOS Safari는 grid item의 aspect-ratio를 무시하는 버그가 있어,
+              // padding-bottom 100% 트릭으로 정사각을 강제한다.
+              className="relative w-full overflow-hidden border border-ink pb-[100%] active:opacity-80"
             >
               <img
                 src={photo.blobUrl}
