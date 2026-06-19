@@ -13,7 +13,9 @@ export function ConflictModal() {
   // 제대로 못 잡는 버그가 있어, 칼럼 폭을 직접 재서 칸 높이를 px로 고정한다.
   const [cell, setCell] = useState(0);
 
-  const date = Object.keys(pendingConflicts)[0];
+  // 과거 날짜부터 차례로 — ISO("YYYY-MM-DD") 문자열 정렬은 곧 시간순.
+  // 한 날짜를 고르면 그 다음으로 이른 날짜가 자동으로 올라온다.
+  const date = Object.keys(pendingConflicts).sort()[0];
 
   useLayoutEffect(() => {
     const el = gridRef.current;
