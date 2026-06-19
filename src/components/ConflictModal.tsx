@@ -26,7 +26,7 @@ export function ConflictModal() {
           {formatMonthDay(date)} — pick one
         </h2>
       </div>
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-2 overflow-y-auto p-3">
+      <div className="grid max-h-[70dvh] grid-cols-3 gap-2 overflow-y-auto p-3">
         {photoIds.map((id) => {
           const photo = uploadedPhotos[id];
           if (!photo) return null;
