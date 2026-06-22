@@ -36,7 +36,7 @@ A free web tool to turn a month of photos into a single calendar frame and expor
 | 📅 **Week start / 주 시작 요일**          | Sunday or Monday / 일요일·월요일 시작                                            |
 | ➕ **Add more anytime / 사진 추가**        | Re-dump in bulk, or tap any empty day to place one / 벌크 재업로드 또는 빈 칸 탭으로 한 장씩 |
 | 📤 **Export & share / 추출·공유**          | High-res JPG (long side 4096px), Web Share on mobile / 고해상도 JPG, 모바일은 공유 시트   |
-| 🔒 **Fully local / 완전 로컬**            | Nothing is uploaded — processed in your browser / 서버 업로드 없이 브라우저에서만 처리      |
+| 🔒 **Fully local / 완전 로컬**            | No uploads — processed in your browser / 업로드 없이 브라우저에서만 처리 |
 
 ---
 

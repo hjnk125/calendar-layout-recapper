@@ -13,8 +13,8 @@ const STEPS = [
     ko: "빈 날짜를 탭해 직접 올릴 수도 있습니다 — 그날 찍은 사진이 아니어도 됩니다.",
   },
   {
-    en: "Nothing is uploaded to a server — your photos stay safe on this device.",
-    ko: "서버에 업로드되지 않습니다 — 사진은 이 기기에만 남습니다.",
+    en: "Your photos never leave your phone — no uploads.",
+    ko: "서버에 업로드되지 않으며, 사진은 어디로도 전송되지 않고 이 기기에만 남습니다.",
   },
 ];
 
