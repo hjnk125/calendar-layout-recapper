@@ -167,7 +167,10 @@ async function renderCalendar(args: ExportArgs): Promise<HTMLCanvasElement> {
 
   // 내부 그리드 헤어라인(마지막 열/행은 외곽선과 겹치므로 생략)
   for (let c = 1; c < 7; c += 1) drawLine(c * cellW, gridTop, c * cellW, gridBottom);
-  for (let r = 1; r < rows.length; r += 1)
+  // r=0(요일/그리드 경계선)부터 다시 그린다. 첫 주 사진을 gridTop부터 그리면
+  // 사진이 이 경계선의 아래 절반을 덮어 선이 얇아지고 사진이 위로 ~1px 삐져나와
+  // 보인다. 사진 위에 경계선을 다시 얹어 온전한 두께로 덮는다.
+  for (let r = 0; r < rows.length; r += 1)
     drawLine(0, gridTop + r * cellH, W, gridTop + r * cellH);
 
   // ── 날짜 숫자 ─────────────────────────────────────────────────────────────
